@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 function Mainpage() {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [difficulty, setDifficulty] = useState('');
   const [projectType, setProjectType] = useState('');
   const [ideas, setIdeas] = useState([]);
@@ -19,7 +20,7 @@ function Mainpage() {
     setLoading(true);
 
     try {
-      const response = await axios.get('http://localhost:3001/projects/random', {
+      const response = await axios.get(`${apiUrl}/projects/random`, {
         params: { difficulty, projectType },
       });
 

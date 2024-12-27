@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function Admin_crud() {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [data, setData] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] = useState(false);
@@ -21,7 +22,7 @@ function Admin_crud() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/projects");
+        const response = await axios.get(`${apiUrl}/projects`);
         setData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -55,7 +56,7 @@ function Admin_crud() {
   const deleteProjects = async () => {
     try {
       for (const id of selectedItems) {
-        await axios.delete(`http://localhost:3001/projects/${id}`);
+        await axios.delete(`${apiUrl}/projects/${id}`);
       }
       setData(data.filter(item => !selectedItems.includes(item._id)));
       setSelectedItems([]);  // Clear the selection after deletion
@@ -81,7 +82,7 @@ function Admin_crud() {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:3001/projects/add", {
+      const response = await axios.post(`${apiUrl}/projects/add`, {
         difficulty,
         projectType,
         idea,
@@ -110,7 +111,7 @@ function Admin_crud() {
     }
 
     try {
-      await axios.put(`http://localhost:3001/projects/${editId}`, {
+      await axios.put(`${apiUrl}/projects/${editId}`, {
         difficulty: editDifficulty,
         projectType: editProjectType,
         idea: editIdea,
@@ -132,7 +133,7 @@ function Admin_crud() {
   // Delete individual project
   const deleteProject = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/projects/${id}`);
+      await axios.delete(`${apiUrl}/projects/${id}`);
       setData(data.filter(item => item._id !== id));
     } catch (error) {
       console.error("Error deleting project:", error);
@@ -266,7 +267,7 @@ function Admin_crud() {
                     onClick={handleEditProject}
                     className="bg-blue-500 text-white px-4 py-2 rounded"
                   >
-                    Save Changes
+                    Update Project
                   </button>
                 </div>
               </div>
@@ -274,13 +275,13 @@ function Admin_crud() {
           </div>
         )}
 
-        {/* Delete Confirmation Modal */}
+        {/* Delete Confirmation */}
         {isDeleteConfirmationVisible && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-8 shadow-lg rounded-lg w-full max-w-md">
-              <h1 className="text-2xl font-bold mb-4">Delete Selected Projects</h1>
-              <p>Are you sure you want to delete the selected projects?</p>
-              <div className="flex justify-between items-center mt-4">
+              <h1 className="text-2xl font-bold mb-4">Delete Confirmation</h1>
+              <p className="mb-4">Are you sure you want to delete the selected projects?</p>
+              <div className="flex justify-between items-center">
                 <button
                   onClick={() => setIsDeleteConfirmationVisible(false)}
                   className="bg-gray-500 text-white px-4 py-2 rounded"
@@ -291,87 +292,79 @@ function Admin_crud() {
                   onClick={deleteProjects}
                   className="bg-red-500 text-white px-4 py-2 rounded"
                 >
-                  Delete
+                  Confirm Deletion
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Project Table */}
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr>
-              <th className="px-6 py-4">
-                <input
-                  type="checkbox"
-                  checked={selectedItems.length === data.length}
-                  onChange={(e) =>
-                    e.target.checked ? setSelectedItems(data.map((item) => item._id)) : setSelectedItems([])
-                  }
-                />
-              </th>
-              <th className="px-6 py-4">Difficulty</th>
-              <th className="px-6 py-4">Project Type</th>
-              <th className="px-6 py-4">Idea</th>
-              <th className="px-6 py-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((item) => (
-              <tr key={item._id} className="hover:bg-gray-100">
-                <td className="px-6 py-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedItems.includes(item._id)}
-                    onChange={() => handleCheckboxChange(item._id)}
-                  />
-                </td>
-                <td className="px-6 py-4">{item.difficulty}</td>
-                <td className="px-6 py-4">{item.projectType}</td>
-                <td className="px-6 py-4">{item.idea}</td>
-                <td className="px-6 py-4">
-                  <button
-                    onClick={() => {
-                      setEditId(item._id);
-                      setEditDifficulty(item.difficulty);
-                      setEditProjectType(item.projectType);
-                      setEditIdea(item.idea);
-                      setIsEditVisible(true);
-                    }}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteProject(item._id)}
-                    className="text-red-500 hover:text-red-700 ml-4"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div>
+          <h2 className="text-2xl font-bold mb-6">Projects</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full table-auto">
+              <thead className="bg-gray-300">
+                <tr>
+                  <th className="px-4 py-2">Select</th>
+                  <th className="px-4 py-2">ID</th>
+                  <th className="px-4 py-2">Difficulty</th>
+                  <th className="px-4 py-2">Type</th>
+                  <th className="px-4 py-2">Idea</th>
+                  <th className="px-4 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentItems.map((item) => (
+                  <tr key={item._id}>
+                    <td className="px-4 py-2">
+                      <input
+                        type="checkbox"
+                        onChange={() => handleCheckboxChange(item._id)}
+                        checked={selectedItems.includes(item._id)}
+                      />
+                    </td>
+                    <td className="px-4 py-2">{item._id}</td>
+                    <td className="px-4 py-2">{item.difficulty}</td>
+                    <td className="px-4 py-2">{item.projectType}</td>
+                    <td className="px-4 py-2">{item.idea}</td>
+                    <td className="px-4 py-2">
+                      <button
+                        onClick={() => {
+                          setEditId(item._id);
+                          setEditDifficulty(item.difficulty);
+                          setEditProjectType(item.projectType);
+                          setEditIdea(item.idea);
+                          setIsEditVisible(true);
+                        }}
+                        className="bg-yellow-500 text-white px-4 py-2 rounded"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteProject(item._id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded ml-2"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Pagination */}
-        <div className="mt-4 flex justify-center">
-          <button
-            onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-300 rounded"
-          >
-            Previous
-          </button>
-          <span className="mx-4">{currentPage}</span>
-          <button
-            onClick={() => paginate(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-300 rounded"
-          >
-            Next
-          </button>
+          {/* Pagination */}
+          <div className="flex justify-center mt-4">
+            {Array.from({ length: totalPages }, (_, index) => (
+              <button
+                key={index + 1}
+                onClick={() => paginate(index + 1)}
+                className={`px-4 py-2 mx-1 rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

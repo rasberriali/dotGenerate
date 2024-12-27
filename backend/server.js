@@ -20,7 +20,7 @@ app.use('/projects', projectRoutes);
 
 // Add root route to check if server is working
 app.get("/", (req, res) => {
-  res.send("Backend is working!");
+  res.json("Backend is working!");
 });
 
 // Export a handler for Vercel

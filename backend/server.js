@@ -15,7 +15,7 @@ app.use(mongoSanitize());
 
 const allowedOrigins = [
   "http://localhost:5173", // Local development URL
-  "https://dot-generate-frontend-ek14psadi-rasberrialis-projects.vercel.app" // Deployed frontend URL
+  "https://dot-generate-frontend.vercel.app"
 ];
 
 // CORS configuration (only one block needed)

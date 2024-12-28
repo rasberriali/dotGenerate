@@ -57,8 +57,6 @@ const connectToDatabase = async () => {
 
     console.log("Using Mongo URI:", mongoUri); // Debug line to check if MONGO_URI is accessible
     await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       connectTimeoutMS: 5000,
       serverSelectionTimeoutMS: 5000,
     });

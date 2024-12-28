@@ -47,15 +47,18 @@ app.use(express.json());
 // MongoDB connection with async/await and retry logic
 const connectToDatabase = async () => {
   try {
+    // Ensuring MongoDB connection does not take too long (useTimeout)
     await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      connectTimeoutMS: 10000, // MongoDB connection timeout
+      connectTimeoutMS: 5000, // Reduced timeout value
+      serverSelectionTimeoutMS: 5000,  // Adjusting for Vercel's tight timeout
     });
     console.log("Successfully connected to MongoDB Atlas");
   } catch (err) {
     console.error("Error connecting to MongoDB Atlas:", err);
-    setTimeout(connectToDatabase, 5000); // Retry connection after 5 seconds
+    // Retry the connection every 5 seconds
+    setTimeout(connectToDatabase, 5000);
   }
 };
 

@@ -4,7 +4,6 @@ const Project = require("../models/Project");
 const Joi = require("joi");
 const mongoose = require("mongoose");
 
-
 // Validation schema using Joi
 const projectSchema = Joi.object({
   difficulty: Joi.string().required(),

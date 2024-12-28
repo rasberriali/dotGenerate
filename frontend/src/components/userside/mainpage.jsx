@@ -3,7 +3,7 @@ import axios from 'axios';
 import debounce from 'lodash/debounce';
 
 function Mainpage() {
-  const apiUrl = process.env.REACT_APP_API_BASE_URL;
+  const apiUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001";
   console.log(apiUrl);
   const [difficulty, setDifficulty] = useState('');
   const [projectType, setProjectType] = useState('');

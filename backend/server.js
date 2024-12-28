@@ -17,7 +17,10 @@ app.use(mongoSanitize());
 app.set("trust proxy", 1);
 
 // CORS Configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://dot-generate-frontend.vercel.app",
+];
 
 app.use(
   cors({

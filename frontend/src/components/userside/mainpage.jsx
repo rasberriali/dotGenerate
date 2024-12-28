@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { debounce } from 'lodash';  // Import debounce
 
 function Mainpage() {
-  const apiUrl = process.env.REACT_APP_API_URL;
   const [difficulty, setDifficulty] = useState('');
   const [projectType, setProjectType] = useState('');
   const [ideas, setIdeas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleGenerate = async () => {
+  const handleGenerate = debounce(async (e) => {
+    // Prevent the default form submission behavior that causes a page reload
+    e.preventDefault();
+
     if (!difficulty || !projectType) {
       setError('Please select both difficulty and project type.');
       setIdeas([]);
@@ -20,7 +23,7 @@ function Mainpage() {
     setLoading(true);
 
     try {
-      const response = await axios.get(`${apiUrl}/projects/random`, {
+      const response = await axios.get('http://localhost:3001/projects/random', {
         params: { difficulty, projectType },
       });
 
@@ -37,20 +40,19 @@ function Mainpage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, 1000);  // Correct debounce delay here
 
   return (
-    <div className="h-svh bg-black bg-grid-pattern bg-grid-size flex flex-col justify-center items-center font-mono xl:p-4 p-8 ">
-     
-        <h1 className="text-center xl:text-6xl text-3xl font-black bg-gradient-to-r from-green-600 to-violet-600 bg-clip-text text-transparent ">
-          Developer Idea Project Generator
-        </h1>
-        <p className="text-center text-gray-400 text-sm xl:text-2xl mt-2 mb-6">
-          Don’t know what project to do? Generate and Code!
-        </p>
-     
+    <div className="h-svh bg-black bg-grid-pattern bg-grid-size flex flex-col justify-center items-center font-mono xl:p-4 p-8  ">
+      <div className='bg-yellow-200 flex flex-col justify-center items-center h-full'>
+      <h1 className="text-center xl:text-6xl text-3xl font-black bg-gradient-to-r from-green-600 to-violet-600 bg-clip-text text-transparent ">
+        Developer Idea Project Generator
+      </h1>
+      <p className="text-center text-gray-400 text-sm xl:text-2xl mt-2 mb-6">
+        Don’t know what project to do? Generate and Code!
+      </p>
 
-      <div className="bg-white shadow-lg rounded-lg p-4 md:p-8 w-full max-w-4xl">
+      <div className="bg-white shadow-lg rounded-lg p-8 md:p-8 w-full max-w-4xl min-h-72 flex flex-col justify-between">
         <div className="space-y-4">
           <div>
             <label htmlFor="difficulty" className="block text-sm text-gray-600 mb-1">
@@ -88,9 +90,7 @@ function Mainpage() {
 
         <button
           onClick={handleGenerate}
-          className={`w-full mt-6 py-2 text-white rounded-md flex justify-center items-center ${
-            loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
-          }`}
+          className={`w-full py-2 text-white rounded-md flex justify-center items-center ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'}`}
           disabled={loading}
         >
           {loading ? (
@@ -120,13 +120,13 @@ function Mainpage() {
         </button>
       </div>
 
-      <div className="mt-8 bg-white p-4 text-center text-gray-500 shadow-lg rounded-lg w-full max-w-4xl">
+      <div className="mt-8 bg-white p-4 text-center text-gray-500 shadow-lg rounded-lg w-full max-w-4xl min-h-40 flex flex-col justify-center items-center">
         {error && <p className="text-red-500">{error}</p>}
         {!error && ideas.length > 0
           ? ideas.map((idea, index) => (
               <div
                 key={index}
-                className="border border-gray-300 rounded-lg p-4 mb-4 bg-gray-50 shadow-md"
+                className="  "
               >
                 <p className="text-gray-800 font-semibold">{idea.idea}</p>
               </div>
@@ -134,8 +134,7 @@ function Mainpage() {
           : !loading && <p>Your project ideas will show here</p>}
       </div>
       </div>
-    
- 
+    </div>
   );
 }
 

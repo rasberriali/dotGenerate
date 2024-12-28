@@ -1,31 +1,70 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const projectRoutes = require('./routes/projectRoutes');
-require('dotenv').config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const rateLimit = require("express-rate-limit");
+const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+const projectRoutes = require("./routes/projectRoutes");
+require("dotenv").config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Security middleware
+app.use(helmet());
+app.use(mongoSanitize());
+
+// CORS with limited origins
+const allowedOrigins = ["http://localhost:5173"];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // Allow credentials like cookies, authorization headers
+  })
+);
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+});
+app.use(limiter);
+
+// Body parsing
 app.use(express.json());
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('Connected to MongoDB Atlas'))
-  .catch((err) => console.error('Error connecting to MongoDB Atlas:', err));
+  .then(() => console.log("Connected to MongoDB Atlas"))
+  .catch((err) => console.error("Error connecting to MongoDB Atlas:", err));
 
-// Routes
-app.use('/projects', projectRoutes);
-
-// Add root route to check if server is working
-app.get("/", (req, res) => {
-  res.json({
-    status: "success",
-    message: "Backend is working!"
-  });
+mongoose.connection.on("disconnected", () => {
+  console.log("MongoDB disconnected. Attempting to reconnect...");
+  mongoose.connect(process.env.MONGO_URI);
 });
 
+// Routes
+app.use("/projects", projectRoutes);
 
-// Export a handler for Vercel
-module.exports = (req, res) => app(req, res);
+// Root route
+app.get("/", (req, res) => {
+  res.json({ status: "success", message: "Backend is working!" });
+});
+
+// Unknown route handler
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
+// Port configuration
+const port = process.env.PORT || 3001;
+app.listen(port, () => {
+  console.log(`Backend is running on http://localhost:${port}`);
+});

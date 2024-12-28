@@ -13,9 +13,12 @@ const app = express();
 app.use(helmet());
 app.use(mongoSanitize());
 
-// CORS with limited origins
-const allowedOrigins = ["http://localhost:5173"];
+const allowedOrigins = [
+  "http://localhost:5173", // Local development URL
+  "https://dot-generate-frontend-ek14psadi-rasberrialis-projects.vercel.app" // Deployed frontend URL
+];
 
+// CORS configuration (only one block needed)
 app.use(
   cors({
     origin: (origin, callback) => {

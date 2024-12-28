@@ -46,10 +46,17 @@ app.use(limiter);
 // Body parsing
 app.use(express.json());
 
-// MongoDB connection with retry logic
+// MongoDB connection with retry logic and logging for environment variables
 const connectToDatabase = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
+    // Adding debug info for MONGO_URI
+    const mongoUri = process.env.MONGO_URI;
+    if (!mongoUri) {
+      throw new Error("MONGO_URI is not defined in environment variables.");
+    }
+
+    console.log("Using Mongo URI:", mongoUri); // Debug line to check if MONGO_URI is accessible
+    await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       connectTimeoutMS: 5000,

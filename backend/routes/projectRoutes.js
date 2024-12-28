@@ -12,8 +12,12 @@ const projectSchema = Joi.object({
 
 // Validation middleware
 const validateProject = (req, res, next) => {
+  console.log("Incoming project data:", req.body); // Debug the data incoming
   const { error } = projectSchema.validate(req.body);
-  if (error) return res.status(400).json({ error: error.details[0].message });
+  if (error) {
+    console.error("Validation Error:", error.details[0].message);
+    return res.status(400).json({ error: error.details[0].message });
+  }
   next();
 };
 
@@ -25,10 +29,13 @@ const sampleProjects = [
 ];
 
 router.get("/seed", async (req, res) => {
+  console.log("Seeding database...");
+
   try {
     await Project.insertMany(sampleProjects);
     res.status(200).json({ message: "Sample projects added!" });
   } catch (error) {
+    console.error("Seeding error:", error);
     res.status(500).json({ error: "Error seeding database" });
   }
 });
@@ -36,6 +43,7 @@ router.get("/seed", async (req, res) => {
 // Fetch projects based on filters
 router.get("/", async (req, res) => {
   const { difficulty, projectType } = req.query;
+  console.log("Received query parameters:", req.query); // Debug
 
   try {
     const query = {};
@@ -43,8 +51,13 @@ router.get("/", async (req, res) => {
     if (projectType) query.projectType = projectType;
 
     const projects = await Project.find(query);
+    if (!projects.length) {
+      return res.status(404).json({ message: "No projects found" });
+    }
+
     res.status(200).json(projects);
   } catch (error) {
+    console.error("Error fetching projects:", error);
     res.status(500).json({ error: "Failed to fetch projects" });
   }
 });
@@ -52,12 +65,14 @@ router.get("/", async (req, res) => {
 // Add a new project with validation
 router.post("/add", validateProject, async (req, res) => {
   const { difficulty, projectType, idea } = req.body;
+  console.log("Adding new project:", req.body); // Debug
 
   try {
     const newProject = new Project({ difficulty, projectType, idea });
     await newProject.save();
     res.status(201).json({ message: "Project added successfully!" });
   } catch (error) {
+    console.error("Error adding project:", error);
     res.status(500).json({ error: "Failed to add project" });
   }
 });
@@ -65,6 +80,7 @@ router.post("/add", validateProject, async (req, res) => {
 // Fetch a random project based on filters
 router.get("/random", async (req, res) => {
   const { difficulty, projectType } = req.query;
+  console.log("Random project request with filters:", req.query); // Debug
 
   try {
     const query = {};
@@ -74,12 +90,13 @@ router.get("/random", async (req, res) => {
     const projects = await Project.find(query);
 
     if (projects.length === 0) {
-      return res.status(404).json({ message: "No projects found!" });
+      return res.status(404).json({ message: "No projects found" });
     }
 
     const randomProject = projects[Math.floor(Math.random() * projects.length)];
     res.status(200).json(randomProject);
   } catch (error) {
+    console.error("Error fetching random project:", error);
     res.status(500).json({ error: "Failed to fetch project" });
   }
 });
@@ -87,6 +104,7 @@ router.get("/random", async (req, res) => {
 // Delete a project
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
+  console.log("Delete request for project ID:", id); // Debug
 
   try {
     const project = await Project.findByIdAndDelete(id);
@@ -94,9 +112,8 @@ router.delete("/:id", async (req, res) => {
       return res.status(404).json({ error: "Project not found" });
     }
     res.status(200).json({ message: "Project deleted successfully!" });
-
   } catch (error) {
-    
+    console.error("Error deleting project:", error);
     res.status(500).json({ error: "Failed to delete project" });
   }
 });
@@ -105,7 +122,9 @@ router.delete("/:id", async (req, res) => {
 router.put("/:id", validateProject, async (req, res) => {
   const { id } = req.params;
   const { difficulty, projectType, idea } = req.body;
-  
+
+  console.log("Update request for project ID:", id, "with data:", req.body); // Debug
+
   try {
     const updatedProject = await Project.findByIdAndUpdate(
       id,
@@ -117,7 +136,9 @@ router.put("/:id", validateProject, async (req, res) => {
     }
     res.status(200).json(updatedProject);
   } catch (error) {
-    
+    console.error("Error updating project:", error);
     res.status(500).json({ error: "Failed to update project" });
   }
-});module.exports = router;
+});
+
+module.exports = router;

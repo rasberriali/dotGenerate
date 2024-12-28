@@ -15,8 +15,8 @@ app.use(mongoSanitize());
 
 // CORS Configuration
 const allowedOrigins = [
-  "http://localhost:5173", 
-  "https://dot-generate-frontend.vercel.app"
+  "http://localhost:5173",
+  "https://dot-generate-frontend.vercel.app",
 ];
 
 // CORS setup
@@ -47,24 +47,24 @@ app.use(express.json());
 // MongoDB connection with async/await and retry logic
 const connectToDatabase = async () => {
   try {
-    // Ensuring MongoDB connection does not take too long (useTimeout)
     await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      connectTimeoutMS: 5000, // Reduced timeout value
-      serverSelectionTimeoutMS: 5000,  // Adjusting for Vercel's tight timeout
+      connectTimeoutMS: 5000, // Adjust connection timeout
+      serverSelectionTimeoutMS: 5000, // Timeout for server selection
     });
     console.log("Successfully connected to MongoDB Atlas");
   } catch (err) {
     console.error("Error connecting to MongoDB Atlas:", err);
-    // Retry the connection every 5 seconds
-    setTimeout(connectToDatabase, 5000);
+    // Retry connection with exponential backoff after 5 seconds
+    setTimeout(() => connectToDatabase(), 5000);
   }
 };
 
+// Initial database connection attempt
 connectToDatabase();
 
-// Debug route for backend testing
+// Test route for backend health check
 app.get("/", (req, res) => {
   res.json({ status: "success", message: "Backend is working!" });
 });
@@ -78,13 +78,13 @@ app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-// Global error handler for logging errors
+// Global error handler
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err.stack);
   res.status(500).json({ error: err.message || "Something went wrong!" });
 });
 
-// Start the server and log successful deployment
+// Start the server
 const port = process.env.PORT || 3001;
 app.listen(port, () => {
   console.log(`Backend is running on http://localhost:${port}`);

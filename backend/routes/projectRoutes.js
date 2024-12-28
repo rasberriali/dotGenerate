@@ -42,6 +42,10 @@ router.get("/seed", async (req, res) => {
 
 // Fetch projects based on filters
 router.get("/", async (req, res) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(500).json({ error: "Database not connected" });
+  }
+
   const { difficulty, projectType } = req.query;
   console.log("Received query parameters:", req.query); // Debug
 
@@ -50,9 +54,13 @@ router.get("/", async (req, res) => {
     if (difficulty) query.difficulty = difficulty;
     if (projectType) query.projectType = projectType;
 
+    const startTime = Date.now();
     const projects = await Project.find(query);
+    const endTime = Date.now();
+    console.log(`Query execution time: ${endTime - startTime} ms`);
+
     if (!projects.length) {
-      return res.status(404).json({ message: "No projects found" });
+      return res.status(200).json({ message: "No projects found" });
     }
 
     res.status(200).json(projects);

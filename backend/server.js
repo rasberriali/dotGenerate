@@ -62,7 +62,12 @@ const connectToDatabase = async () => {
 };
 
 // Initial database connection attempt
-connectToDatabase();
+connectToDatabase().then(() => {
+  const port = process.env.PORT || 3001;
+  app.listen(port, () => {
+    console.log(`Backend is running on http://localhost:${port}`);
+  });
+});
 
 // Test route for backend health check
 app.get("/", (req, res) => {
@@ -82,10 +87,4 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err.stack);
   res.status(500).json({ error: err.message || "Something went wrong!" });
-});
-
-// Start the server
-const port = process.env.PORT || 3001;
-app.listen(port, () => {
-  console.log(`Backend is running on http://localhost:${port}`);
 });

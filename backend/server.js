@@ -44,25 +44,22 @@ app.use(limiter);
 // Body parsing
 app.use(express.json());
 
-// MongoDB connection with logging and reconnecting
-const connectToDatabase = () => {
-  mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true, connectTimeoutMS: 10000 })
-    .then(() => {
-      console.log("Successfully connected to MongoDB Atlas");
-    })
-    .catch((err) => {
-      console.error("Error connecting to MongoDB Atlas:", err);
-      setTimeout(connectToDatabase, 5000); // Retry connection after 5 seconds
+// MongoDB connection with async/await and retry logic
+const connectToDatabase = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      connectTimeoutMS: 10000, // MongoDB connection timeout
     });
+    console.log("Successfully connected to MongoDB Atlas");
+  } catch (err) {
+    console.error("Error connecting to MongoDB Atlas:", err);
+    setTimeout(connectToDatabase, 5000); // Retry connection after 5 seconds
+  }
 };
 
 connectToDatabase();
-
-// Reconnection logic for MongoDB
-mongoose.connection.on("disconnected", () => {
-  console.log("MongoDB disconnected. Attempting to reconnect...");
-  connectToDatabase();
-});
 
 // Debug route for backend testing
 app.get("/", (req, res) => {
@@ -72,16 +69,16 @@ app.get("/", (req, res) => {
 // API Routes for projects
 app.use("/projects", projectRoutes);
 
-// Route for undefined routes (404 handler)
+// 404 handler for undefined routes
 app.use((req, res) => {
   console.log("404 Route not found:", req.method, req.originalUrl);
   res.status(404).json({ error: "Route not found" });
 });
 
-// Global error handler for debugging
+// Global error handler for logging errors
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err.stack);
-  res.status(500).json({ error: "Something went wrong!" });
+  res.status(500).json({ error: err.message || "Something went wrong!" });
 });
 
 // Start the server and log successful deployment

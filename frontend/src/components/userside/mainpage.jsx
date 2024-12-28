@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 
 function Mainpage() {
   // Use the environment variable to get the API base URL
-  const apiUrl = process.env.REACT_APP_API_BASE_URL;
+  const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
   // Console log to ensure the apiUrl is loaded correctly
   console.log("API URL:", apiUrl);

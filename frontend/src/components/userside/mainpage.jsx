@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { debounce } from 'lodash';  // Import debounce
+import debounce from 'lodash/debounce';
 
 function Mainpage() {
   const [difficulty, setDifficulty] = useState('');
@@ -44,7 +44,7 @@ function Mainpage() {
 
   return (
     <div className="h-svh bg-black bg-grid-pattern bg-grid-size flex flex-col justify-center items-center font-mono xl:p-4 p-8  ">
-      <div className='bg-yellow-200 flex flex-col justify-center items-center h-full'>
+      <div className=' flex flex-col justify-center items-center h-full'>
       <h1 className="text-center xl:text-6xl text-3xl font-black bg-gradient-to-r from-green-600 to-violet-600 bg-clip-text text-transparent ">
         Developer Idea Project Generator
       </h1>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function Admin_crud() {
+  const apiUrl = process.env.REACT_APP_API_BASE_URL;
   const [data, setData] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] = useState(false);
@@ -21,7 +22,7 @@ function Admin_crud() {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/projects");
+        const response = await axios.get(`${apiUrl}/projects`);
         setData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -55,7 +56,7 @@ function Admin_crud() {
   const deleteProjects = async () => {
     try {
       for (const id of selectedItems) {
-        await axios.delete(`http://localhost:3001/projects/${id}`);
+        await axios.delete(`${apiUrl}/projects/${id}`);
       }
       setData(data.filter(item => !selectedItems.includes(item._id)));
       setSelectedItems([]);  // Clear the selection after deletion
@@ -81,7 +82,7 @@ function Admin_crud() {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:3001/projects/add", {
+      const response = await axios.post(`${apiUrl}/projects/add`, {
         difficulty,
         projectType,
         idea,
@@ -110,7 +111,7 @@ function Admin_crud() {
     }
 
     try {
-      await axios.put(`http://localhost:3001/projects/${editId}`, {
+      await axios.put(`${apiUrl}/projects/${editId}`, {
         difficulty: editDifficulty,
         projectType: editProjectType,
         idea: editIdea,
@@ -132,7 +133,7 @@ function Admin_crud() {
   // Delete individual project
   const deleteProject = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/projects/${id}`);
+      await axios.delete(`${apiUrl}/projects/${id}`);
       setData(data.filter(item => item._id !== id));
     } catch (error) {
       console.error("Error deleting project:", error);

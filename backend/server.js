@@ -4,7 +4,6 @@ const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
-const morgan = require("morgan");  // For HTTP request logging
 const projectRoutes = require("./routes/projectRoutes");
 require("dotenv").config();
 
@@ -13,9 +12,6 @@ const app = express();
 // Security middleware
 app.use(helmet());
 app.use(mongoSanitize());
-
-// Log HTTP requests with morgan
-app.use(morgan("dev"));
 
 // Set trust proxy to avoid X-Forwarded-For issues
 app.set("trust proxy", 1);
@@ -53,6 +49,7 @@ app.use(express.json());
 // MongoDB connection with retry logic and logging for environment variables
 const connectToDatabase = async () => {
   try {
+    // Adding debug info for MONGO_URI
     const mongoUri = process.env.MONGO_URI;
     if (!mongoUri) {
       throw new Error("MONGO_URI is not defined in environment variables.");

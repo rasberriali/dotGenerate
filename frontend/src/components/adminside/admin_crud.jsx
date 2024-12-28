@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function Admin_crud() {
-  const apiUrl = process.env.REACT_APP_API_BASE_URL;
+  const apiUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001";
   const [data, setData] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
   const [isDeleteConfirmationVisible, setIsDeleteConfirmationVisible] = useState(false);

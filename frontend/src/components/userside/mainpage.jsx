@@ -3,12 +3,15 @@ import axios from 'axios';
 import debounce from 'lodash/debounce';
 
 function Mainpage() {
-  const apiUrl = process.env.REACT_APP_API_BASE_URL;
+  const apiUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001";
+  console.log(apiUrl);
   const [difficulty, setDifficulty] = useState('');
   const [projectType, setProjectType] = useState('');
   const [ideas, setIdeas] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(''); 
+
+  
 
   const handleGenerate = debounce(async (e) => {
     // Prevent the default form submission behavior that causes a page reload

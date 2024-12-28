@@ -13,13 +13,15 @@ const app = express();
 app.use(helmet());
 app.use(mongoSanitize());
 
+// Set trust proxy to avoid X-Forwarded-For issues
+app.set("trust proxy", 1);
+
 // CORS Configuration
 const allowedOrigins = [
   "http://localhost:5173",
   "https://dot-generate-frontend.vercel.app",
 ];
 
-// CORS setup
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -30,7 +32,7 @@ app.use(
       }
     },
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true, // Allow credentials
+    credentials: true,
   })
 );
 
@@ -44,20 +46,20 @@ app.use(limiter);
 // Body parsing
 app.use(express.json());
 
-// MongoDB connection with async/await and retry logic
+// MongoDB connection with retry logic
 const connectToDatabase = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      connectTimeoutMS: 5000, // Adjust connection timeout
-      serverSelectionTimeoutMS: 5000, // Timeout for server selection
+      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 5000,
     });
     console.log("Successfully connected to MongoDB Atlas");
   } catch (err) {
-    console.error("Error connecting to MongoDB Atlas:", err);
-    // Retry connection with exponential backoff after 5 seconds
-    setTimeout(() => connectToDatabase(), 5000);
+    console.error("Error connecting to MongoDB Atlas:", err.message);
+    console.error("Retrying MongoDB connection in 5 seconds...");
+    setTimeout(() => connectToDatabase(), 5000); // Retry after 5 seconds
   }
 };
 
@@ -68,6 +70,9 @@ connectToDatabase().then(() => {
     console.log(`Backend is running on http://localhost:${port}`);
   });
 });
+
+// Handle favicon.ico requests
+app.get("/favicon.ico", (req, res) => res.status(204).send());
 
 // Test route for backend health check
 app.get("/", (req, res) => {

@@ -1,11 +1,12 @@
 const express = require("express");
+require("dotenv").config();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const projectRoutes = require("./routes/projectRoutes");
-require("dotenv").config(); // Ensure dotenv is at the top of the file
+
 
 const app = express();
 
@@ -46,25 +47,16 @@ app.use(limiter);
 // Body parsing
 app.use(express.json());
 
-// MongoDB connection with retry logic and detailed logging
+// MongoDB connection with retry logic and logging for environment variables
 const connectToDatabase = async () => {
-  const mongoUri = process.env.MONGO_URI;
-
-  // Debug: Ensure we can see what MONGO_URI is being used
-  console.log(
-    "Environment Variables at Startup:",
-    JSON.stringify(process.env, null, 2) // Prints available env vars during app initialization
-  );
-
-  if (!mongoUri) {
-    console.error("MONGO_URI is not defined in the environment variables!");
-    throw new Error(
-      "Critical Error: MongoDB connection string is missing. Please verify Vercel env configuration."
-    );
-  }
-
   try {
-    console.log("Attempting to connect to MongoDB with URI:", mongoUri);
+    // Adding debug info for MONGO_URI
+    const mongoUri = process.env.MONGO_URI;
+    if (!mongoUri) {
+      throw new Error("MONGO_URI is not defined in environment variables.");
+    }
+
+    console.log("Using Mongo URI:", mongoUri); // Debug line to check if MONGO_URI is accessible
     await mongoose.connect(mongoUri, {
       connectTimeoutMS: 5000,
       serverSelectionTimeoutMS: 5000,

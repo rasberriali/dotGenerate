@@ -85,6 +85,11 @@ app.get("/", (req, res) => {
   res.json({ status: "success", message: "Backend is working!" });
 });
 
+app.get("/env", (req, res) => {
+  res.json({ mongoUri: process.env.MONGO_URI || "undefined" });
+});
+
+
 // API Routes for projects
 app.use("/projects", projectRoutes);
 

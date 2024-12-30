@@ -20,6 +20,7 @@ app.set("trust proxy", 1);
 // CORS Configuration
 const allowedOrigins = [
   "https://dot-generate-frontend.vercel.app",
+  "https://dot-generate.vercel.app",
   "http://localhost:5173",
 ];
 

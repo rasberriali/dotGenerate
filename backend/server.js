@@ -74,7 +74,7 @@ const connectToDatabase = async () => {
 
 // Initial database connection attempt
 connectToDatabase().then(() => {
-  const port = process.env.PORT || 3001;
+  const port = process.env.PORT || 3002;
   app.listen(port, () => {
     console.log(`Backend is running on http://localhost:${port}`);
   });

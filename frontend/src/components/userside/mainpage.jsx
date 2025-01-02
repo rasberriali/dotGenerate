@@ -4,7 +4,7 @@ import debounce from 'lodash/debounce';
 
 function Mainpage() {
   // Use the environment variable to get the API base URL
-  const apiUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001";
+  const apiUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:3002";
   // Console log to ensure the apiUrl is loaded correctly
   console.log("API URL:", apiUrl);
 
@@ -53,18 +53,19 @@ function Mainpage() {
   }, 1000); // Correct debounce delay here
 
   return (
-    <div className="h-svh bg-black bg-grid-pattern bg-grid-size flex flex-col justify-center items-center font-mono xl:p-4 p-8">
-      <div className="flex flex-col justify-center items-center h-full">
-        <h1 className="text-center xl:text-6xl text-3xl font-black bg-gradient-to-r from-green-600 to-violet-600 bg-clip-text text-transparent ">
-          Developer Idea Project Generator
-        </h1>
-        <p className="text-center text-gray-400 text-sm xl:text-2xl mt-2 mb-6">
-          Don’t know what project to do? Generate and Code!
-        </p>
+    <div className="h-max xl:h-svh justify-center bg-black  bg-grid-pattern bg-grid-size flex flex-col items-center font-mono xl:p-4 p-8">
+        <div className=' mt-4'>
+          <h1 className="text-center xl:text-6xl text-3xl font-black bg-gradient-to-r from-green-600  to-violet-600 bg-clip-text text-transparent ">
+            Developer Idea Project Generator</h1>
+          <p className="text-center text-gray-400 text-sm xl:text-2xl mt-2 mb-6">
+            Don’t know what project to do? Generate and Code! </p>
+        </div>
+        
+        <div className='flex xl:flex-row flex-col xl:w-3/4 w-full xl:p-4 p-0 justify-between h-1/2 gap-4 '>
 
-        <div className="bg-white shadow-lg rounded-lg p-8 md:p-8 w-full max-w-4xl min-h-72 flex flex-col justify-between">
+        <div className="bg-white shadow-lg rounded-lg p-8 xl:w-1/3 w-full min-h-72 flex flex-col justify-between">
           <div className="space-y-4">
-            <div>
+       
               <label htmlFor="difficulty" className="block text-sm text-gray-600 mb-1">
                 Difficulty
               </label>
@@ -79,8 +80,6 @@ function Mainpage() {
                 <option value="Average">Average</option>
                 <option value="Geek">Geek</option>
               </select>
-            </div>
-
             <div>
               <label htmlFor="projectType" className="block text-sm text-gray-600 mb-1">
                 Project Type
@@ -126,21 +125,60 @@ function Mainpage() {
               </svg>
             ) : (
               'Generate'
-            )}
+            )}          
           </button>
         </div>
 
-        <div className="mt-8 bg-white p-4 text-center text-gray-500 shadow-lg rounded-lg w-full max-w-4xl min-h-40 flex flex-col justify-center items-center">
+        {/* <div className=" bg-white p-4 text-center text-gray-500 shadow-lg rounded-lg w-full flex flex-col justify-center items-center xl:mt-0 mt-4 ">
           {error && <p className="text-red-500">{error}</p>}
           {!error && ideas.length > 0
             ? ideas.map((idea, index) => (
                 <div key={index}>
                   <p className="text-gray-800 font-semibold">{idea.idea}</p>
                 </div>
+                
               ))
             : !loading && <p>Your project ideas will show here</p>}
+        </div> */}
+
+
+<div className=" bg-white p-4 text-center text-gray-500 shadow-lg rounded-lg w-full flex flex-col justify-center items-center xl:mt-0 mt-4">
+  {error && <p className="text-red-500">{error}</p>}
+  {!error && ideas.length > 0
+    ? ideas.map((idea, index) => (
+        <div key={index}>
+          <p className="text-gray-800 font-semibold">{idea.idea}</p>
+
+          {/* Dynamic Data Rendering Section */}
+          <p className="text-sm leading-relaxed text-gray-500">{idea.description}</p>
+          
+          <div className="flex flex-wrap justify-center gap-4 mt-6">
+            <span className="font-medium text-gray-600">Technologies:</span>
+            <div className="flex flex-wrap gap-3 items-center">
+              {idea.technologies?.map((tech, idx) => (
+                <div key={idx} className="px-2 py-1 rounded-md bg-blue-400 text-white text-sm">
+                  {tech}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-4 mt-6">
+          <span className="font-medium text-gray-600">References:</span>
+            <div className="flex flex-wrap gap-3 items-center">
+              {idea.references?.map((references, idx) => (
+                <div key={idx} className="px-2 py-1 rounded-md bg-blue-400 text-white text-sm">
+                  {references}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+      ))
+    : !loading && <p>Your project ideas will show here</p>}
+</div>
+
+  </div>
     </div>
   );
 }

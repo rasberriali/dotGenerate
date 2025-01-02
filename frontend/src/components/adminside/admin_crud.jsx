@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function Admin_crud() {
-  const apiUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:3001";
+  const apiUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:3002";
   console.log(apiUrl);
   const [data, setData] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
@@ -18,6 +18,17 @@ function Admin_crud() {
   const [editDifficulty, setEditDifficulty] = useState("");
   const [editProjectType, setEditProjectType] = useState("");
   const [editIdea, setEditIdea] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editTechnologies, setEditTechnologies] = useState("");
+  const [editReferences, setEditReferences] = useState("");
+
+  const [difficulty, setDifficulty] = useState("");
+  const [projectType, setProjectType] = useState("");
+  const [idea, setIdea] = useState("");
+  const [description, setDescription] = useState("");
+  const [technologies, setTechnologies] = useState("");
+  const [references, setReferences] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Fetch data from the backend
   useEffect(() => {
@@ -60,7 +71,7 @@ function Admin_crud() {
         await axios.delete(`${apiUrl}/projects/${id}`);
       }
       setData(data.filter(item => !selectedItems.includes(item._id)));
-      setSelectedItems([]);  // Clear the selection after deletion
+      setSelectedItems([]); // Clear the selection after deletion
       setIsDeleteConfirmationVisible(false); // Close the delete confirmation
     } catch (error) {
       console.error("Error deleting projects:", error);
@@ -69,13 +80,8 @@ function Admin_crud() {
   };
 
   // Add a new project
-  const [difficulty, setDifficulty] = useState("");
-  const [projectType, setProjectType] = useState("");
-  const [idea, setIdea] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const handleAddProject = async () => {
-    if (!difficulty || !projectType || !idea) {
+    if (!difficulty || !projectType || !idea || !description || !technologies || !references) {
       alert("Please fill in all fields!");
       return;
     }
@@ -87,11 +93,17 @@ function Admin_crud() {
         difficulty,
         projectType,
         idea,
+        description,
+        technologies,
+        references,
       });
       alert(response.data.message);
       setDifficulty("");
       setProjectType("");
       setIdea("");
+      setDescription("");
+      setTechnologies("");
+      setReferences("");
     } catch (error) {
       console.error("Error adding project:", error);
       alert("Failed to add project!");
@@ -106,7 +118,7 @@ function Admin_crud() {
 
   // Edit project modal
   const handleEditProject = async () => {
-    if (!editDifficulty || !editProjectType || !editIdea) {
+    if (!editDifficulty || !editProjectType || !editIdea || !editDescription || !editTechnologies || !editReferences) {
       alert("Please fill in all fields!");
       return;
     }
@@ -116,15 +128,29 @@ function Admin_crud() {
         difficulty: editDifficulty,
         projectType: editProjectType,
         idea: editIdea,
+        description: editDescription,
+        technologies: editTechnologies,
+        references: editReferences,
       });
 
       // Update data on frontend after successful edit
-      setData(data.map(item => (item._id === editId ? { ...item, difficulty: editDifficulty, projectType: editProjectType, idea: editIdea } : item)));
+      setData(data.map(item => (item._id === editId ? {
+        ...item,
+        difficulty: editDifficulty,
+        projectType: editProjectType,
+        idea: editIdea,
+        description: editDescription,
+        technologies: editTechnologies,
+        references: editReferences
+      } : item)));
       setIsEditVisible(false);
       setEditId("");
       setEditDifficulty("");
       setEditProjectType("");
       setEditIdea("");
+      setEditDescription("");
+      setEditTechnologies("");
+      setEditReferences("");
     } catch (error) {
       console.error("Error editing project:", error);
       alert("Failed to edit project!");
@@ -183,29 +209,52 @@ function Admin_crud() {
                 <select
                   className="w-full p-2 border rounded"
                   onChange={(e) => setDifficulty(e.target.value)}
-                  aria-label="Select Difficulty"
+                  value={difficulty}
                 >
                   <option value="">Select Difficulty</option>
                   <option value="Beginner">Beginner</option>
                   <option value="Average">Average</option>
                   <option value="Geek">Geek</option>
                 </select>
+
                 <select
                   className="w-full p-2 border rounded"
                   onChange={(e) => setProjectType(e.target.value)}
-                  aria-label="Select Project Type"
+                  value={projectType}
                 >
                   <option value="">Select Project Type</option>
                   <option value="Mobile App">Mobile App</option>
                   <option value="Desktop App">Desktop App</option>
                 </select>
+
                 <textarea
                   className="w-full p-2 border rounded"
                   placeholder="Enter your project idea"
                   value={idea}
                   onChange={(e) => setIdea(e.target.value)}
-                  aria-label="Enter Project Idea"
                 />
+
+                <textarea
+                  className="w-full p-2 border rounded"
+                  placeholder="Enter project description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+
+                <textarea
+                  className="w-full p-2 border rounded"
+                  placeholder="Enter technologies to use"
+                  value={technologies}
+                  onChange={(e) => setTechnologies(e.target.value)}
+                />
+
+                <textarea
+                  className="w-full p-2 border rounded"
+                  placeholder="Enter references (if any)"
+                  value={references}
+                  onChange={(e) => setReferences(e.target.value)}
+                />
+
                 <div className="flex justify-between items-center">
                   <button
                     onClick={handleCloseAddIdea}
@@ -215,10 +264,10 @@ function Admin_crud() {
                   </button>
                   <button
                     onClick={handleAddProject}
-                    className={`bg-blue-500 text-white px-4 py-2 rounded ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`bg-blue-500 text-white px-4 py-2 rounded ${loading ? 'cursor-not-allowed' : ''}`}
                     disabled={loading}
                   >
-                    {loading ? "Adding..." : "Add Project"}
+                    {loading ? 'Adding...' : 'Add'}
                   </button>
                 </div>
               </div>
@@ -232,30 +281,29 @@ function Admin_crud() {
             <div className="bg-white p-8 shadow-lg rounded-lg w-full max-w-md">
               <h1 className="text-2xl font-bold mb-4">Edit Project</h1>
               <div className="space-y-4">
-                <select
+                <input
                   className="w-full p-2 border rounded"
-                  onChange={(e) => setEditDifficulty(e.target.value)}
-                  value={editDifficulty}
-                >
-                  <option value="">Select Difficulty</option>
-                  <option value="Beginner">Beginner</option>
-                  <option value="Average">Average</option>
-                  <option value="Geek">Geek</option>
-                </select>
-                <select
-                  className="w-full p-2 border rounded"
-                  onChange={(e) => setEditProjectType(e.target.value)}
-                  value={editProjectType}
-                >
-                  <option value="">Select Project Type</option>
-                  <option value="Mobile App">Mobile App</option>
-                  <option value="Desktop App">Desktop App</option>
-                </select>
-                <textarea
-                  className="w-full p-2 border rounded"
-                  placeholder="Enter your project idea"
+                  placeholder="Edit Project Idea"
                   value={editIdea}
                   onChange={(e) => setEditIdea(e.target.value)}
+                />
+                <textarea
+                  className="w-full p-2 border rounded"
+                  placeholder="Edit Project Description"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                />
+                <textarea
+                  className="w-full p-2 border rounded"
+                  placeholder="Edit Technologies"
+                  value={editTechnologies}
+                  onChange={(e) => setEditTechnologies(e.target.value)}
+                />
+                <textarea
+                  className="w-full p-2 border rounded"
+                  placeholder="Edit References"
+                  value={editReferences}
+                  onChange={(e) => setEditReferences(e.target.value)}
                 />
                 <div className="flex justify-between items-center">
                   <button
@@ -266,9 +314,10 @@ function Admin_crud() {
                   </button>
                   <button
                     onClick={handleEditProject}
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                    className={`bg-blue-500 text-white px-4 py-2 rounded ${loading ? 'cursor-not-allowed' : ''}`}
+                    disabled={loading}
                   >
-                    Save Changes
+                    {loading ? 'Updating...' : 'Update'}
                   </button>
                 </div>
               </div>
@@ -276,101 +325,94 @@ function Admin_crud() {
           </div>
         )}
 
-        {/* Delete Confirmation Modal */}
-        {isDeleteConfirmationVisible && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-8 shadow-lg rounded-lg w-full max-w-md">
-              <h1 className="text-2xl font-bold mb-4">Delete Selected Projects</h1>
-              <p>Are you sure you want to delete the selected projects?</p>
-              <div className="flex justify-between items-center mt-4">
-                <button
-                  onClick={() => setIsDeleteConfirmationVisible(false)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={deleteProjects}
-                  className="bg-red-500 text-white px-4 py-2 rounded"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Project Table */}
-        <table className="min-w-full table-auto border-collapse">
-          <thead>
-            <tr>
-              <th className="px-6 py-4">
-                <input
-                  type="checkbox"
-                  checked={selectedItems.length === data.length}
-                  onChange={(e) =>
-                    e.target.checked ? setSelectedItems(data.map((item) => item._id)) : setSelectedItems([])
-                  }
-                />
-              </th>
-              <th className="px-6 py-4">Difficulty</th>
-              <th className="px-6 py-4">Project Type</th>
-              <th className="px-6 py-4">Idea</th>
-              <th className="px-6 py-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((item) => (
-              <tr key={item._id} className="hover:bg-gray-100">
-                <td className="px-6 py-4">
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-auto">
+            <thead>
+              <tr>
+                <th className="border px-4 py-2">
                   <input
                     type="checkbox"
-                    checked={selectedItems.includes(item._id)}
-                    onChange={() => handleCheckboxChange(item._id)}
-                  />
-                </td>
-                <td className="px-6 py-4">{item.difficulty}</td>
-                <td className="px-6 py-4">{item.projectType}</td>
-                <td className="px-6 py-4">{item.idea}</td>
-                <td className="px-6 py-4">
-                  <button
-                    onClick={() => {
-                      setEditId(item._id);
-                      setEditDifficulty(item.difficulty);
-                      setEditProjectType(item.projectType);
-                      setEditIdea(item.idea);
-                      setIsEditVisible(true);
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedItems(data.map((item) => item._id));
+                      } else {
+                        setSelectedItems([]);
+                      }
                     }}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteProject(item._id)}
-                    className="text-red-500 hover:text-red-700 ml-4"
-                  >
-                    Delete
-                  </button>
-                </td>
+                  />
+                </th>
+                <th className="border px-4 py-2">ID</th>
+                <th className="border px-4 py-2">Idea</th>
+                <th className="border px-4 py-2">Project Type</th>
+                <th className="border px-4 py-2">Difficulty</th>
+                <th className="border px-4 py-2">Description</th>
+                <th className="border px-4 py-2">Technologies</th>
+                <th className="border px-4 py-2">References</th>
+                <th className="border px-4 py-2">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {currentItems.map((item) => (
+                <tr key={item._id}>
+                  <td className="border px-4 py-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.includes(item._id)}
+                      onChange={() => handleCheckboxChange(item._id)}
+                    />
+                  </td>
+                  <td className="border px-4 py-2">{item._id}</td>
+                  <td className="border px-4 py-2">{item.idea}</td>
+                  <td className="border px-4 py-2">{item.projectType}</td>
+                  <td className="border px-4 py-2">{item.difficulty}</td>
+                  <td className="border px-4 py-2">{item.description}</td>
+                  <td className="border px-4 py-2">{item.technologies}</td>
+                  <td className="border px-4 py-2">{item.references}</td>
+                  <td className="border px-4 py-2">
+                    <button
+                      onClick={() => {
+                        setIsEditVisible(true);
+                        setEditId(item._id);
+                        setEditDifficulty(item.difficulty);
+                        setEditProjectType(item.projectType);
+                        setEditIdea(item.idea);
+                        setEditDescription(item.description);
+                        setEditTechnologies(item.technologies);
+                        setEditReferences(item.references);
+                      }}
+                      className="bg-yellow-500 text-white py-1 px-4 rounded-md"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteProject(item._id)}
+                      className="bg-red-500 text-white py-1 px-4 rounded-md ml-2"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* Pagination */}
-        <div className="mt-4 flex justify-center">
+        <div className="flex justify-between mt-4">
           <button
+            className="bg-gray-500 text-white px-4 py-2 rounded-lg"
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-4 py-2 bg-gray-300 rounded"
           >
             Previous
           </button>
-          <span className="mx-4">{currentPage}</span>
+          <span className="text-center mt-4">
+            Page {currentPage} of {totalPages}
+          </span>
           <button
+            className="bg-gray-500 text-white px-4 py-2 rounded-lg"
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 bg-gray-300 rounded"
           >
             Next
           </button>

@@ -4,12 +4,16 @@ const Project = require("../models/Project");
 const Joi = require("joi");
 const mongoose = require("mongoose");
 
-// Validation schema using Joi
 const projectSchema = Joi.object({
   difficulty: Joi.string().required(),
   projectType: Joi.string().required(),
   idea: Joi.string().required(),
+  description: Joi.string().required(),
+  technologies: Joi.string().required(),
+  references: Joi.string().required(), // Changed to an array of strings
 });
+
+
 
 // Validation middleware
 const validateProject = (req, res, next) => {
@@ -21,25 +25,6 @@ const validateProject = (req, res, next) => {
   }
   next();
 };
-
-// Seed database with sample projects
-const sampleProjects = [
-  { difficulty: "easy", projectType: "web", idea: "To-do App" },
-  { difficulty: "medium", projectType: "web", idea: "E-commerce Platform" },
-  { difficulty: "hard", projectType: "AI", idea: "Hand Sign Detection" },
-];
-
-router.get("/seed", async (req, res) => {
-  console.log("Seeding database...");
-
-  try {
-    await Project.insertMany(sampleProjects);
-    res.status(200).json({ message: "Sample projects added!" });
-  } catch (error) {
-    console.error("Seeding error:", error);
-    res.status(500).json({ error: "Error seeding database" });
-  }
-});
 
 // Fetch projects based on filters
 router.get("/", async (req, res) => {
@@ -73,11 +58,11 @@ router.get("/", async (req, res) => {
 
 // Add a new project with validation
 router.post("/add", validateProject, async (req, res) => {
-  const { difficulty, projectType, idea } = req.body;
+  const { difficulty, projectType, idea, description, technologies, references } = req.body;
   console.log("Adding new project:", req.body); // Debug
 
   try {
-    const newProject = new Project({ difficulty, projectType, idea });
+    const newProject = new Project({ difficulty, projectType, idea, description, technologies, references });
     await newProject.save();
     res.status(201).json({ message: "Project added successfully!" });
   } catch (error) {
@@ -130,14 +115,14 @@ router.delete("/:id", async (req, res) => {
 // Update a project
 router.put("/:id", validateProject, async (req, res) => {
   const { id } = req.params;
-  const { difficulty, projectType, idea } = req.body;
+  const { difficulty, projectType, idea, description, technologies, references } = req.body;
 
   console.log("Update request for project ID:", id, "with data:", req.body); // Debug
 
   try {
     const updatedProject = await Project.findByIdAndUpdate(
       id,
-      { difficulty, projectType, idea },
+      { difficulty, projectType, idea, description, technologies, references },
       { new: true }
     );
     if (!updatedProject) {

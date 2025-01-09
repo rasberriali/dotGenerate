@@ -53,7 +53,7 @@ function Mainpage() {
   }, 1000); // Correct debounce delay here
 
   return (
-    <div className="h-screen justify-center bg-black  bg-grid-pattern bg-grid-size flex flex-col items-center font-mono xl:p-4 p-8">
+    <div className="xl:h-screen justify-center bg-black  bg-grid-pattern bg-grid-size flex flex-col items-center font-mono xl:p-4 p-8">
         <div className=' mt-4'>
           <h1 className="text-center xl:text-6xl text-3xl font-black bg-gradient-to-r from-green-600  to-violet-600 bg-clip-text text-transparent ">
             Developer Idea Project Generator</h1>
